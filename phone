@@ -1,0 +1,30 @@
+int=$#
+str=""
+
+if [ $# -eq 0 ]; then
+    echo "Usage: phone searchforp[...searchfor]"
+    echo "(You didn't tell me what you want to search for.)"
+    exit 1  # 인자가 없으면 종료
+fi
+
+for arg in "$@"; do
+    if [ "$int" -eq "$#" ]; then
+        # 정확히 단어 경계로 일치하는 검색
+        str=$(egrep -i "\b$arg\b" mydata.txt)
+    fi
+
+    if [ -n "$str" ]; then
+        # str과 $arg를 OR 연산자로 결합한 검색
+        str=$(egrep -i "$str\|$arg" mydata.txt)  
+    fi
+
+    ((int--))  # int 값 감소
+
+    if [ "$int" -eq 0 ]; then
+        if [ -n "$str" ]; then
+            # 정확한 매칭 결과 출력
+            egrep -i "$str" mydata.txt | awk -f display.awk
+        fi
+    fi
+done
+
